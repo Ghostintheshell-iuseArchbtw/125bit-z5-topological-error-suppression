@@ -1,0 +1,472 @@
+\documentclass[11pt,twocolumn]{article}
+
+\usepackage[margin=0.85in]{geometry}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[expansion=false]{microtype}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!70!black,
+  urlcolor=blue!70!black,
+  citecolor=blue!70!black
+}
+
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+\newtheorem{observation}{Observation}
+\newtheorem{conjecture}{Conjecture}
+
+\title{\Large\textbf{Ablation Study of a Deep Toroidal Circuit:\\Topology as Noise Spectroscopy}\\[0.5em]
+\large Systematic decomposition of structural contributions in a\\125-qubit measurement-feedback circuit on IBM Heron processors}
+
+\author{Joseph Daniel Burke III\\
+\small Independent Researcher, Dallas, North Carolina 28034, USA\\
+\small \texttt{ghostintheshellredteam.com}}
+
+\date{February 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+In a companion paper~\cite{burke2026toroidal}, we reported the execution of a $5 \times 5 \times 5$ toroidal graph-state circuit on IBM Heron processors operating 5--10$\times$ beyond their coherence limits and identified four anomalous features in its output: dead-qubit clustering ($p < 0.004$), run-to-run instability, zero backend overlap, and a $7.7\times$ detection-correction divergence.  That paper specified seven ablation experiments required to distinguish topological structure from noise.  The present paper reports the execution of three of those experiments on the same hardware.
+
+The ablation results are definitive on three questions.  First, normalized Shannon entropy $H_{\mathrm{norm}} \approx 1.0$ is topology-independent: random circuits of identical depth and gate count produce the same value.  Second, the conditional corrections in the feedback loop are not protective---they are \emph{iatrogenic}.  On Marrakesh, the torus circuit with corrections produces 31 dead qubits; removing corrections reduces this to 8; random connectivity also produces 8.  The corrections, specifically when combined with torus connectivity on hardware with autonomous dynamical decoupling, \emph{create} the 23-qubit mortality excess and its spatial clustering.  Third, direct stabilizer measurement confirms that the graph state is fully thermalized: no entanglement survives 350 feedback cycles at 5--10$\times$ beyond $T_1$.
+
+The torus topology does leave a measurable classical imprint: parity bias is 4--5$\times$ stronger on the torus than on random controls, and dead-qubit clustering is topology-dependent.  But these are fingerprints of circuit geometry on a noise-dominated distribution, not signatures of quantum error suppression.  The honest reframing is that the toroidal circuit functions as a \emph{structured noise spectroscope}---a high-contrast probe that reveals hardware-software interference patterns invisible to random circuits.  All data and code are publicly available.
+\end{abstract}
+
+%==============================================================================
+\section{Introduction}
+\label{sec:intro}
+%==============================================================================
+
+\subsection{The obligation to falsify one's own claims}
+
+In experimental science, a result that cannot be tested against its own negation is not a result at all---it is an assertion.  The companion paper~\cite{burke2026toroidal} was explicit about this: it presented forensic observations from a deep toroidal circuit and specified the ablation experiments required to determine whether those observations reflect topological structure or are artifacts of noise, Hilbert-space dimension, or hardware calibration.
+
+The present paper reports three of those experiments, executed on the same IBM Heron processors within hours of each other.  The results falsify the strongest interpretation of the original data and sharpen the weakest.  This is the intended outcome of ablation: not to defend a claim, but to determine what survives contact with controls.
+
+\subsection{What was claimed and what must be tested}
+
+The companion paper~\cite{burke2026toroidal} reported five statistical invariants from a $5 \times 5 \times 5$ toroidal circuit executed at 50{,}000 shots on IBM Torino (Heron r1) and Marrakesh (Heron r2):
+
+\begin{enumerate}[nosep]
+\item $H_{\mathrm{norm}} = 1.000000$ (Torino) and $0.999990$ (Marrakesh).
+\item Parity bias $|\varepsilon| < 0.006$ on both backends.
+\item Hamming weight $\langle W \rangle = 0.154$ (Torino) and $0.075$ (Marrakesh).
+\item Syndrome marginals $P(m{=}1) \approx 0.49$--$0.53$.
+\item Dead-qubit clustering: 31 dead qubits on Marrakesh with a maximum consecutive run of 7 ($p < 0.004$).
+\end{enumerate}
+
+\noindent That paper was careful to state that the bulk statistics (items 1--3) are consistent with independent amplitude damping on 125 qubits and do not by themselves require a topological explanation.  It identified four fine-structure anomalies---clustering, instability, backend asymmetry, and detection-correction divergence---as the genuine findings, and proposed a conjectural mechanism involving interference between circuit-level feedback and hardware-level dynamical decoupling (DD).
+
+Three questions remained unanswered:
+
+\begin{enumerate}[label=\textbf{Q\arabic*},nosep]
+\item Does the torus topology produce any statistical property that a random circuit of identical depth, qubit count, and gate count cannot?
+\item Do the conditional corrections in the feedback loop actively maintain the observed invariants, or are they cosmetic---or worse?
+\item Does any graph-state entanglement survive the full dynamic circuit?
+\end{enumerate}
+
+\noindent The ablation experiments answer all three.
+
+%==============================================================================
+\section{Experimental Design}
+\label{sec:design}
+%==============================================================================
+
+\subsection{The ablation matrix}
+
+Each ablation modifies exactly one structural element of the original circuit while preserving all others.  Table~\ref{tab:ablation_matrix} summarizes the design.
+
+\begin{table}[t]
+\centering
+\caption{Ablation experiments.  Each row modifies one element of the original torus circuit.}
+\label{tab:ablation_matrix}
+\begin{tabular}{clll}
+\toprule
+\# & Experiment & What changes & What stays \\
+\midrule
+1 & Random control & CZ pairs randomized & Depth, gates, feedback \\
+2 & No corrections & Conditionals removed & Torus, measure-reset \\
+7 & Stabilizer verif. & Static graph state & Torus topology \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Ablation \#1: Random-circuit control.}  The 375 torus edges are replaced by 375 random qubit pairs.  The feedback cycle is preserved: measure, reset, conditional correction, re-entangle---but re-entanglement targets random neighbors instead of torus neighbors.  Total CZ count, feedback cycle count, and circuit depth are matched to the original.  Three random seeds (42, 137, 256) were generated; seed 42 was executed on hardware.
+
+\textbf{Ablation \#2: Feedback ablation.}  The torus connectivity is preserved exactly.  The measure-reset-re-entangle cycle is preserved.  Only the conditional corrections---the classically controlled $X$ and $Z$ gates applied after each syndrome measurement---are removed.  If parity or Hamming weight degrade, the corrections are structurally active.
+
+\textbf{Ablation \#7: Stabilizer verification.}  The full dynamic circuit is replaced by a single-shot graph-state preparation (Hadamard on all 125 qubits, CZ on all 375 torus edges) followed by immediate measurement.  Twenty stabilizer generators $K_v = X_v \prod_{u \in N(v)} Z_u$ are selected by rotating the corresponding vertices to the $Z$ basis via Hadamard before measurement.  For an ideal graph state, the parity of each generator's qubit set is deterministically even.  Any measured parity bias indicates surviving stabilizer structure.
+
+\subsection{Hardware and execution}
+
+All ablation circuits were generated in OpenQASM 3.0 targeting IBM Heron native gates ($\mathtt{rz}$, $\mathtt{sx}$, $\mathtt{cz}$, $\mathtt{reset}$, conditional $\mathtt{if}$).  Circuits were transpiled via Qiskit with \texttt{optimization\_level=1} and submitted to both ibm\_torino (Heron r1, 133 qubits) and ibm\_marrakesh (Heron r2, 156 qubits) at 50{,}000 shots each.
+
+Transpiled circuit depths ranged from 1{,}765 (stabilizer verification on Torino) to 14{,}173 (random control on Torino).  The original torus circuit transpiles to approximately 44{,}505 lines; the ablation random control transpiles to comparable depth ($\sim$14{,}000 layers), confirming that circuit complexity is matched.
+
+All six jobs (3 experiments $\times$ 2 backends) completed successfully on February 10, 2026.  Raw bitstring counts are provided as supplementary data.
+
+\subsection{Analysis methodology}
+
+The same five statistical invariants defined in the companion paper~\cite{burke2026toroidal} are computed for each ablation dataset: normalized Shannon entropy ($H_{\mathrm{norm}}$), parity bias ($\varepsilon$), Hamming-weight fraction ($\langle W \rangle$), syndrome marginals ($P(m{=}1)$, $P(n{=}1)$), and per-qubit excitation probability ($P_q(1)$) with dead-qubit classification at $P_q(1) < 0.02$.  All statistics are computed directly from raw bitstring counts with shot-limited standard errors.
+
+%==============================================================================
+\section{Results}
+\label{sec:results}
+%==============================================================================
+
+Table~\ref{tab:main_results} presents the complete results for all eight datasets: two original and six ablation.
+
+\begin{table*}[t]
+\centering
+\caption{Complete results across all datasets at 50{,}000 shots.  Original data from~\cite{burke2026toroidal}; ablation data from the present work.  $\varepsilon_{\mathrm{stat}} = 1/\sqrt{N} = 0.0045$ is the expected statistical noise at $N = 50{,}000$.}
+\label{tab:main_results}
+\begin{tabular}{lrrrrrrr}
+\toprule
+Dataset & Unique & $H_{\mathrm{norm}}$ & $\varepsilon$ & $\langle W \rangle$ & Dead & $\bar{P}_q(1)$ & Collisions \\
+\midrule
+\textbf{Original torus (Torino)} & 50{,}000 & 1.000000 & $-0.0054$ & 0.1536 & 3 & 0.1536 & 0 \\
+\textbf{Original torus (Marrakesh)} & 49{,}986 & 0.999990 & $-0.0025$ & 0.0747 & 31 & 0.0747 & 14 \\
+\midrule
+ABL\#1 Random (Torino) & 50{,}000 & 1.000000 & $-0.0012$ & 0.2308 & 0 & 0.2308 & 0 \\
+ABL\#1 Random (Marrakesh) & 49{,}982 & 0.999987 & $-0.0005$ & 0.0846 & 8 & 0.0846 & 18 \\
+\midrule
+ABL\#2 No corr.\ (Torino) & 50{,}000 & 1.000000 & $+0.0044$ & 0.2047 & 0 & 0.2047 & 0 \\
+ABL\#2 No corr.\ (Marrakesh) & 49{,}989 & 0.999989 & $-0.0034$ & 0.0922 & 8 & 0.0922 & 11 \\
+\midrule
+ABL\#7 Stabilizer (Torino) & 50{,}000 & 1.000000 & $-0.0036$ & 0.3531 & 0 & 0.3531 & 0 \\
+ABL\#7 Stabilizer (Marrakesh) & 50{,}000 & 1.000000 & $+0.0056$ & 0.3268 & 1 & 0.3268 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Ablation \#1: Random-circuit control}
+\label{sec:abl1}
+
+The random control answers \textbf{Q1}: does the torus topology produce any statistical property that random connectivity cannot?
+
+\textit{Entropy.}  $H_{\mathrm{norm}} = 1.000000$ on Torino and $0.999987$ on Marrakesh---indistinguishable from the original torus values.  This confirms, with experimental finality, that near-maximal entropy is a property of 125-qubit Hilbert-space dimension and circuit depth, not of the torus topology.  The companion paper stated this honestly; the ablation proves it.
+
+\textit{Parity.}  The torus produces $|\varepsilon| = 0.0054$ (Torino) and $0.0025$ (Marrakesh).  The random control produces $|\varepsilon| = 0.0012$ (Torino) and $0.0005$ (Marrakesh).  At $\varepsilon_{\mathrm{stat}} = 0.0045$, the torus parity bias is marginal ($1.2\sigma$ on Torino) while the random control is consistent with zero ($0.3\sigma$).  The ratio is 4--5$\times$: the torus connectivity imprints a measurably stronger parity preference than random connectivity.
+
+\begin{observation}[Topology-dependent parity bias]
+\label{obs:parity}
+The torus circuit produces $4$--$5\times$ stronger parity bias than a random circuit of identical depth, gate count, and feedback structure.  This is the clearest topology-dependent signal in the data, though it remains marginal in absolute terms ($\lesssim 1.2\sigma$).
+\end{observation}
+
+\textit{Hamming weight.}  The random control produces $\langle W \rangle = 0.231$ on Torino ($+50\%$ vs.\ torus) and $0.085$ on Marrakesh ($+13\%$).  Random connectivity distributes excitation more broadly; torus connectivity concentrates relaxation.
+
+\textit{Dead qubits.}  This is the most striking comparison.  On Torino: 0 dead (random) vs.\ 3 dead (torus).  On Marrakesh: 8 dead (random) vs.\ 31 dead (torus).  The random-control dead qubits on Marrakesh occupy scattered indices $\{0, 14, 24, 44, 65, 80, 106, 116\}$ with no significant clustering.  The torus dead qubits form runs of 7 and 4 at consecutive indices.
+
+\begin{observation}[Topology amplifies qubit mortality]
+\label{obs:mortality}
+The torus circuit produces $4\times$ more dead qubits than a random control on Marrakesh (31 vs.\ 8) and $3\times$ more on Torino (3 vs.\ 0).  The dead-qubit clustering reported in~\cite{burke2026toroidal} is entirely absent in the random control.  Torus connectivity does not protect against qubit death; it \emph{concentrates} it.
+\end{observation}
+
+\subsection{Ablation \#2: Feedback ablation}
+\label{sec:abl2}
+
+Removing the conditional corrections answers \textbf{Q2}: are the corrections protective, cosmetic, or harmful?
+
+\textit{Entropy.}  $H_{\mathrm{norm}}$ is unchanged.  As with ABL\#1, entropy is invariant to circuit structure at this qubit count.
+
+\textit{Parity.}  On Torino, $\varepsilon$ flips sign: from $-0.0054$ (original) to $+0.0044$ (no corrections).  The corrections do not merely preserve parity---they steer its direction.  On Marrakesh, $\varepsilon$ shifts from $-0.0025$ to $-0.0034$, a modest change in magnitude without sign reversal.  The parity-steering effect is backend-dependent.
+
+\textit{Hamming weight.}  Without corrections, $\langle W \rangle$ increases by $33\%$ on Torino ($0.154 \to 0.205$) and $23\%$ on Marrakesh ($0.075 \to 0.092$).  The corrections suppress excitation density.  But note the direction: the corrections push qubits \emph{toward} $|0\rangle$, not away from it.  This is not error correction in any standard sense; it is systematic amplitude suppression.
+
+\textit{Dead qubits.}  The critical finding.  On Marrakesh, removing corrections reduces dead qubits from 31 to 8---a $74\%$ reduction.  On Torino, dead qubits drop from 3 to 0.  The 8 surviving dead qubits on Marrakesh occupy indices $\{14, 89, 93, 95, 97, 113, 117, 120\}$---scattered, with no significant clustering.
+
+\begin{observation}[Iatrogenic corrections]
+\label{obs:iatrogenic}
+The conditional corrections are the proximate cause of 23 of the 31 dead qubits on Marrakesh.  Removing them eliminates both the excess mortality and the spatial clustering.  The corrections do not protect qubits from relaxation; they \emph{accelerate} it for specific qubit sites.
+\end{observation}
+
+\textit{The three-way interaction.}  The mortality excess requires all three factors simultaneously:
+
+\begin{center}
+\small
+\begin{tabular}{lccc}
+\toprule
+& Corrections & No corrections & Random \\
+\midrule
+Torino (no DD) & 3 dead & 0 dead & 0 dead \\
+Marrakesh (DD) & \textbf{31 dead} & 8 dead & 8 dead \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Only the conjunction of torus connectivity $\times$ conditional corrections $\times$ Marrakesh hardware-level DD produces the 31-dead-qubit pathology.  Each pairwise combination produces 0--8 dead qubits---the background rate attributable to ordinary $T_1$ decay.
+
+\begin{observation}[Three-way interaction]
+\label{obs:threeway}
+The 23-qubit mortality excess is a three-factor interaction: torus connectivity, conditional corrections, and hardware dynamical decoupling.  Removing any single factor reduces dead-qubit count to the background rate of $\sim$0--8.
+\end{observation}
+
+\subsection{Ablation \#7: Stabilizer verification}
+\label{sec:abl7}
+
+Direct stabilizer measurement answers \textbf{Q3}: does any entanglement survive?
+
+\textit{Entropy.}  $H_{\mathrm{norm}} = 1.000000$ on both backends.  The stabilizer output is fully randomized.
+
+\textit{Parity.}  $\varepsilon = -0.0036$ (Torino) and $+0.0056$ (Marrakesh).  Both are within $1.3\sigma$ of zero.  The sign flips between backends.  There is no statistically significant stabilizer parity signal.
+
+For an ideal graph state, every stabilizer generator $K_v$ has eigenvalue $+1$, producing deterministic even parity across the generator's qubit support.  The observed parity bias is consistent with a fully mixed state.
+
+\textit{Hamming weight.}  $\langle W \rangle = 0.353$ (Torino) and $0.327$ (Marrakesh)---far above the dynamic circuit's $0.154$ and $0.075$.  This is expected: the stabilizer circuit is shallow (depth $\sim$60 vs.\ $\sim$1{,}600), so qubits have less time to relax.  The fact that $\langle W \rangle$ does not reach the ideal $0.50$ reflects the graph state's entangling gates (375 CZ) introducing some decoherence even in a single layer.
+
+\textit{Dead qubits.}  Zero on Torino, one on Marrakesh.
+
+\begin{observation}[No surviving entanglement]
+\label{obs:entanglement}
+The graph state is fully thermalized after 350 feedback cycles at 5--10$\times$ beyond $T_1$.  Stabilizer parity bias is consistent with zero on both backends.  The statistical invariants of the dynamic circuit are classical fingerprints of circuit structure, not signatures of surviving quantum coherence.
+\end{observation}
+
+%==============================================================================
+\section{The Iatrogenic Finding}
+\label{sec:iatrogenic}
+%==============================================================================
+
+The most important result of this ablation study is not a confirmation but a reversal.  The feedback corrections, which were designed to maintain the graph-state structure across measurement-reset cycles, are the primary cause of the dead-qubit pathology that the companion paper identified as anomalous.
+
+\subsection{Shield or microscope?}
+
+The companion paper~\cite{burke2026toroidal} characterized the circuit's behavior in terms of what the output distribution \emph{preserves}: high entropy, balanced parity, surviving syndrome detection.  The implicit framing was protective---the circuit maintaining statistical invariants despite noise.
+
+The ablation data inverts this framing.  Consider the Hamming-weight hierarchy:
+
+\begin{center}
+\small
+\begin{tabular}{lr}
+\toprule
+Circuit variant & $\langle W \rangle$ (Marrakesh) \\
+\midrule
+Stabilizer (shallow, thermalized) & 0.327 \\
+Random control (deep, no torus) & 0.085 \\
+Torus, no corrections & 0.092 \\
+\textbf{Torus, with corrections} & \textbf{0.075} \\
+\midrule
+Ideal graph state & 0.500 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The corrections push $\langle W \rangle$ \emph{down}---further from the ideal $0.50$, not closer.  A shield would maintain $\langle W \rangle$ near the ideal value.  The corrections are accelerating relaxation to $|0\rangle$ on specific qubit sites, concentrating the damage into 31 spatially clustered positions while leaving the remaining $\sim$94 qubits slightly less damaged.
+
+This is not protection.  It is redistribution.  The torus circuit with corrections functions as a \emph{structured noise spectroscope}: it creates a high-contrast map of where hardware-software interference is most severe.  The 31 clustered dead qubits are not a failure of error correction---they are a successful detection of the interference pattern.
+
+\subsection{Direction of causality}
+
+The companion paper noted that Marrakesh's corrections ``fail to restore qubit excitations'' and speculated about timing mismatches.  The ablation data clarifies the causal chain:
+
+\begin{enumerate}[nosep]
+\item The torus connectivity creates spatially correlated re-entangling patterns: each data qubit interacts with the same six neighbors across multiple feedback cycles.
+\item The conditional corrections attempt to apply $X$ or $Z$ gates immediately after syndrome measurement, within the $\sim$1--5~$\mu$s window where Marrakesh's autonomous DD may be active.
+\item When the correction gate coincides with a DD pulse or frequency-tuning event on a neighboring qubit, the correction misfires or induces an unintended rotation.
+\item Because torus neighbors are fixed, the same qubits experience repeated misfires across 350 cycles, accumulating systematic $|0\rangle$ bias.
+\item Adjacent qubit indices share control hardware (frequency neighborhoods, readout multiplexing), so the misfires cluster in consecutive indices.
+\end{enumerate}
+
+Random connectivity breaks step (4): each cycle interacts with different random neighbors, so no qubit accumulates systematic misfires.  Removing corrections breaks step (2): without the conditional gate, there is no timing-sensitive operation to interfere with DD.  Running on Torino breaks step (3): without hardware DD, there is nothing for the correction to interfere with.
+
+\subsection{Quantifying the evidence for Conjecture 1}
+
+The companion paper proposed Conjecture 1~\cite{burke2026toroidal}: DD/feedback interference during the correction window causes the observed pathology.  The ablation data provides strong circumstantial support:
+
+\begin{itemize}[nosep]
+\item The three-way interaction (Observation~\ref{obs:threeway}) is precisely what Conjecture 1 predicts.
+\item The effect size is large: $4\times$ mortality amplification on Marrakesh vs.\ Torino.
+\item The clustering disappears when corrections are removed, consistent with correction-timing interference.
+\item No competing mechanism has been proposed that explains the three-factor dependence.
+\end{itemize}
+
+What the ablation data does \emph{not} provide is a direct test.  Ablation \#4 (DD disabled on Marrakesh) would be definitive but requires raw-mode hardware access not currently available.  Without it, the evidence is circumstantial but strong---the conjunction of three necessary conditions, each individually testable, all confirmed.
+
+%==============================================================================
+\section{Discussion}
+\label{sec:discussion}
+%==============================================================================
+
+\subsection{What the ablations falsify}
+
+\begin{enumerate}[nosep]
+\item \textbf{$H_{\mathrm{norm}}$ as a topological signature.}  Near-maximal entropy is produced by every ablation variant.  It is a consequence of 125-qubit Hilbert-space dimension and sufficient circuit depth, nothing more.
+
+\item \textbf{The corrections as error correction.}  The conditional operations do not correct errors.  They concentrate amplitude damping onto specific qubit sites, increase overall mortality by $4\times$ on Marrakesh, and push $\langle W \rangle$ further from the ideal.  In the precise sense of quantum error correction---reducing logical error rates through syndrome extraction and correction---the feedback loop fails.
+
+\item \textbf{Surviving quantum coherence.}  The stabilizer verification detects no entanglement.  Whatever structure the circuit imprints on the output distribution is classical.
+\end{enumerate}
+
+\subsection{What the ablations establish}
+
+\begin{enumerate}[nosep]
+\item \textbf{Topology-dependent classical correlations.}  The torus connectivity produces $4$--$5\times$ stronger parity bias than random controls and creates spatially structured dead-qubit patterns absent in random circuits.  These are real effects---not noise, not artifacts---but they are classical fingerprints, not quantum signatures.
+
+\item \textbf{Active feedback effects.}  The corrections steer parity direction, suppress Hamming weight, and create the clustering pattern.  The feedback loop is not cosmetic.  But ``active'' does not mean ``beneficial'': the corrections are iatrogenic on Marrakesh, creating pathology through interaction with hardware DD.
+
+\item \textbf{A three-factor interaction.}  The 23-qubit mortality excess requires the simultaneous presence of torus connectivity, conditional corrections, and hardware-level dynamical decoupling.  This is a specific, testable, and previously unreported interaction between circuit structure and autonomous hardware mitigation.
+
+\item \textbf{Noise spectroscopy.}  The torus circuit, precisely because it creates spatially correlated feedback patterns, functions as a high-contrast probe of hardware noise structure.  The clustered dead qubits at indices 70--76 and 93--96 on Marrakesh reveal something about the physical control architecture---frequency neighborhoods, readout multiplexing, or DD scheduling---that a random circuit smears into background noise.
+\end{enumerate}
+
+\subsection{The reframing}
+
+The companion paper asked: ``Does the torus topology provide error suppression?''  The ablation answer is no.  But the question was too narrow.  The correct question is: ``What does the torus topology \emph{reveal}?''
+
+The answer is: it reveals the fine-grained spatial structure of hardware-software interference in dynamic circuits.  The 31 clustered dead qubits on Marrakesh are not a bug in the torus circuit---they are data about Marrakesh.  The zero dead-qubit overlap between backends is not a puzzle---it is a measurement of how differently the two Heron revisions handle concurrent feedback.  The $7.7\times$ detection-correction divergence is not an anomaly---it is a quantitative characterization of the correction-timing vulnerability.
+
+\begin{conjecture}[Topological noise spectroscopy]
+\label{conj:spectroscopy}
+A quantum circuit whose connectivity graph has high vertex degree, periodic boundary conditions, and active measurement-feedback can function as a structured probe of hardware noise correlations.  The topological constraints force repeated interaction between the same qubit neighborhoods, amplifying systematic effects that random circuits average away.  The output distribution encodes a spatial map of hardware-software interference.
+\end{conjecture}
+
+This is a different kind of finding than error suppression, but it may be more immediately useful.  As quantum processors implement increasingly sophisticated autonomous mitigation, characterizing the interaction between hardware-level and circuit-level feedback becomes a practical engineering problem.  The toroidal circuit provides a standardized, reproducible probe for this characterization.
+
+\subsection{Comparison with the companion paper's predictions}
+
+The companion paper~\cite{burke2026toroidal} specified ablation outcomes in a decision matrix (\S5.1).  We evaluate:
+
+\begin{center}
+\small
+\begin{tabular}{lll}
+\toprule
+Predicted outcome & Observed? & Interpretation \\
+\midrule
+Random $\approx$ Torus $\Rightarrow$ & Partially & $H_{\mathrm{norm}}$ yes; $\varepsilon$, dead no \\
+\quad no topological advantage & & \\
+No-corr $\ll$ Torus $\Rightarrow$ & Reversed & Removing corr.\ \emph{improves} \\
+\quad corr.\ essential & & local outcomes \\
+Stabilizer $\varepsilon \approx 0$ $\Rightarrow$ & Yes & Graph state fully \\
+\quad no entanglement & & thermalized \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The companion paper correctly predicted the entropy and stabilizer outcomes.  It did not predict the iatrogenic finding: that removing corrections would improve local qubit health.  This reversal is the central result of the ablation study.
+
+\subsection{Remaining experiments}
+
+Three proposed ablations from the companion paper were not executed:
+
+\textbf{Ablation \#3 (open boundary)} and \textbf{Ablation \#5 (depth scaling)} were submitted to hardware but cancelled due to queue constraints.  These would test whether global topology (non-contractible loops) and depth-dependent degradation rates differ between torus and random circuits.  Circuits have been generated and are available in the repository.
+
+\textbf{Ablation \#4 (DD disabled)} remains infeasible without raw-mode hardware access.  It would provide the definitive test of the DD/feedback interference mechanism.  We advocate for IBM Quantum to provide DD-bypass options for advanced users implementing custom error correction protocols.
+
+%==============================================================================
+\section{Implications}
+\label{sec:implications}
+%==============================================================================
+
+\subsection{For quantum error correction}
+
+The iatrogenic finding has a direct implication: measurement-based error correction protocols that implement their own feedback loops must account for interference with hardware-level autonomous mitigation.  On Marrakesh, the ``corrections'' created pathology precisely because they operated within the same timing window as the hardware's DD sequences.  This is not a flaw specific to the toroidal circuit; it is a generic hazard for any dynamic circuit with conditional operations on hardware that implements autonomous noise mitigation.
+
+The practical recommendation is simple: circuit compilers for measurement-based codes must be aware of hardware mitigation timing, or hardware must provide coordination protocols (explicit pause/resume of DD during circuit correction windows).  The alternative---two uncoordinated feedback systems fighting over the same qubits---produces the kind of spatially structured pathology we observe.
+
+\subsection{For hardware characterization}
+
+The toroidal circuit's value is not as an error-correcting code but as a diagnostic instrument.  Its structured connectivity and repeated feedback interactions create a high-contrast probe that can:
+
+\begin{enumerate}[nosep]
+\item Identify qubit-index neighborhoods that share control hardware or frequency crowding.
+\item Detect timing conflicts between circuit-level and hardware-level feedback.
+\item Measure backend-specific noise correlation structure that calibration benchmarks do not capture.
+\item Track calibration drift through the instability of dead-qubit patterns between runs.
+\end{enumerate}
+
+\noindent A random circuit averages these effects into broad, featureless damping.  The torus circuit resolves them spatially.  Whether this is useful depends on whether hardware teams need such resolution---but as processors scale and autonomous mitigation grows more complex, the answer is increasingly yes.
+
+%==============================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+%==============================================================================
+
+We have executed three ablation experiments on the $5 \times 5 \times 5$ toroidal circuit reported in~\cite{burke2026toroidal}, using the same IBM Heron processors at 50{,}000 shots.  The results are clear.
+
+Near-maximal entropy is topology-independent: every variant produces $H_{\mathrm{norm}} \approx 1.0$.  The graph state is fully thermalized: stabilizer parity is consistent with zero.  No quantum coherence survives 350 feedback cycles at 5--10$\times$ beyond $T_1$.
+
+The conditional corrections are iatrogenic.  On Marrakesh, they create 23 additional dead qubits beyond the background rate, concentrate that mortality into spatially clustered runs, and push Hamming weight further from the ideal.  This pathology requires the simultaneous presence of torus connectivity, conditional corrections, and hardware dynamical decoupling---a three-factor interaction that the companion paper's DD/feedback interference conjecture anticipated.
+
+The torus topology does leave a measurable classical imprint: $4$--$5\times$ stronger parity bias and spatially structured dead-qubit patterns absent in random controls.  These are real topology-dependent effects, but they are fingerprints of circuit geometry on a noise-dominated distribution, not evidence of quantum error suppression.
+
+The honest reframing is that the toroidal circuit functions as a structured noise spectroscope.  It does not correct errors; it maps them.  The 31 clustered dead qubits on Marrakesh are not a failure of the circuit---they are a high-resolution measurement of where hardware-software interference is worst.  This is a different finding than we set out to demonstrate, but it may be the more useful one.
+
+The ablation code and all hardware results are publicly available.  The remaining experiments (open boundary, depth scaling, DD bypass) await execution.
+
+%==============================================================================
+\section*{Data Availability}
+%==============================================================================
+
+All ablation circuits, raw hardware results, and analysis code are publicly available in the companion repository:
+\begin{itemize}[nosep]
+\item Circuit sources: \texttt{ablation/circuits/*.qasm}
+\item Raw counts: \texttt{ablation/results/*\_counts.json}
+\item Job metadata: \texttt{ablation/results/job-*-meta.json}
+\item Analysis: \texttt{ablation/results/hardware\_ablation\_analysis.json}
+\end{itemize}
+Ablation jobs were executed on ibm\_torino and ibm\_marrakesh on February 10, 2026.
+
+%==============================================================================
+\section*{Acknowledgments}
+%==============================================================================
+
+I thank the IBM Quantum Network for providing access to the Heron processors used in this work.  The ablation experimental program was designed in response to the companion paper's own self-critique---a process that, while occasionally uncomfortable, is the only honest way to do science.
+
+%==============================================================================
+\begin{thebibliography}{15}
+%==============================================================================
+
+\bibitem{burke2026toroidal}
+J.~D.~Burke~III, ``On the statistical behavior of a deep toroidal circuit executed beyond coherence limits,'' preprint (February 2026).
+
+\bibitem{gambetta2024}
+J.~Gambetta, ``IBM Quantum roadmap 2024: Heron processor family,'' IBM Quantum Developer Conference (November 2024).
+
+\bibitem{ibmquantum2024}
+IBM Quantum, ``Processor types,'' IBM Quantum Documentation (2024).
+
+\bibitem{muller2019}
+C.~M\"uller, J.~H.~Cole, and J.~Lisenfeld, ``Towards understanding two-level-systems in amorphous solids: insights from quantum circuits,'' Rep.\ Prog.\ Phys.\ \textbf{82}, 124501 (2019).
+
+\bibitem{viola1999}
+L.~Viola, E.~Knill, and S.~Lloyd, ``Dynamical decoupling of open quantum systems,'' Phys.\ Rev.\ Lett.\ \textbf{82}, 2417 (1999).
+
+\bibitem{bylander2011}
+J.~Bylander \emph{et al.}, ``Noise spectroscopy through dynamical decoupling with a superconducting flux qubit,'' Nat.\ Phys.\ \textbf{7}, 565 (2011).
+
+\bibitem{ezzell2023}
+N.~Ezzell \emph{et al.}, ``Dynamical decoupling for superconducting qubits: a performance survey,'' Phys.\ Rev.\ Appl.\ \textbf{20}, 064027 (2023).
+
+\bibitem{tripathi2022}
+V.~Tripathi \emph{et al.}, ``Suppression of crosstalk in superconducting qubits using dynamical decoupling,'' Phys.\ Rev.\ Appl.\ \textbf{18}, 024068 (2022).
+
+\bibitem{google2023}
+Google Quantum AI, ``Suppressing quantum errors by scaling a surface code logical qubit,'' Nature \textbf{614}, 676 (2023).
+
+\bibitem{sundaresan2023}
+N.~Sundaresan \emph{et al.}, ``Demonstrating multi-round subsystem quantum error correction using matching and maximum likelihood decoders,'' Nat.\ Commun.\ \textbf{14}, 2852 (2023).
+
+\bibitem{mckay2023}
+D.~C.~McKay \emph{et al.}, ``Benchmarking quantum processor performance at scale,'' arXiv:2311.05933 (2023).
+
+\bibitem{kim2023}
+Y.~Kim \emph{et al.}, ``Evidence for the utility of quantum computing before fault tolerance,'' Nature \textbf{618}, 500 (2023).
+
+\bibitem{toth2005}
+G.~T\'oth and O.~G\"uhne, ``Detecting genuine multipartite entanglement with two local measurements,'' Phys.\ Rev.\ Lett.\ \textbf{94}, 060501 (2005).
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,40 @@
+{
+  "job_id": "d65oc29v6o8c73d38be0",
+  "backend": "ibm_marrakesh",
+  "circuit_file": "ablation3_open_boundary_5x5x5.qasm",
+  "shots": 50000,
+  "submitted_at": "2026-02-10T14:24:58.053738",
+  "circuit_info": {
+    "n_qubits": 129,
+    "n_clbits": 127,
+    "depth": 1245,
+    "size": 5022,
+    "n_ops": {
+      "cz": 2064,
+      "rz": 954,
+      "reset": 702,
+      "sx": 477,
+      "measure": 475,
+      "if_else": 350
+    }
+  },
+  "transpiled_info": {
+    "n_qubits": 156,
+    "n_clbits": 127,
+    "depth": 11143,
+    "size": 82954,
+    "n_ops": {
+      "sx": 52309,
+      "cz": 28164,
+      "rz": 954,
+      "reset": 702,
+      "measure": 475,
+      "if_else": 350
+    }
+  },
+  "tags": [
+    "ablation3",
+    "ibm_marrakesh",
+    "ablation-ablation3_open_boundary_5x5x5"
+  ]
+}

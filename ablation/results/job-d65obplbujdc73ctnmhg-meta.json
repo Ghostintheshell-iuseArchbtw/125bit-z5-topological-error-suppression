@@ -1,0 +1,40 @@
+{
+  "job_id": "d65obplbujdc73ctnmhg",
+  "backend": "ibm_torino",
+  "circuit_file": "ablation5_random_depth_200cycles.qasm",
+  "shots": 50000,
+  "submitted_at": "2026-02-10T14:24:22.727475",
+  "circuit_info": {
+    "n_qubits": 129,
+    "n_clbits": 127,
+    "depth": 735,
+    "size": 3497,
+    "n_ops": {
+      "cz": 1589,
+      "rz": 654,
+      "reset": 402,
+      "sx": 327,
+      "measure": 325,
+      "if_else": 200
+    }
+  },
+  "transpiled_info": {
+    "n_qubits": 133,
+    "n_clbits": 127,
+    "depth": 8745,
+    "size": 88916,
+    "n_ops": {
+      "sx": 57199,
+      "cz": 30136,
+      "rz": 654,
+      "reset": 402,
+      "measure": 325,
+      "if_else": 200
+    }
+  },
+  "tags": [
+    "ablation5",
+    "ibm_torino",
+    "ablation-ablation5_random_depth_200cycles"
+  ]
+}

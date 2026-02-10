@@ -1,0 +1,112 @@
+{
+  "ablation1_random_control_seed42.qasm": {
+    "ablation": 1,
+    "description": "Random circuit control (no torus structure)",
+    "seed": 42,
+    "n_qubits": 125,
+    "n_feedback_cycles": 350,
+    "hypothesis": "If torus topology matters, this will show worse H_norm and parity"
+  },
+  "ablation1_random_control_seed137.qasm": {
+    "ablation": 1,
+    "description": "Random circuit control (no torus structure)",
+    "seed": 137,
+    "n_qubits": 125,
+    "n_feedback_cycles": 350,
+    "hypothesis": "If torus topology matters, this will show worse H_norm and parity"
+  },
+  "ablation1_random_control_seed256.qasm": {
+    "ablation": 1,
+    "description": "Random circuit control (no torus structure)",
+    "seed": 256,
+    "n_qubits": 125,
+    "n_feedback_cycles": 350,
+    "hypothesis": "If torus topology matters, this will show worse H_norm and parity"
+  },
+  "ablation2_no_corrections.qasm": {
+    "ablation": 2,
+    "description": "Full torus, no conditional corrections",
+    "n_qubits": 125,
+    "n_feedback_cycles": 350,
+    "hypothesis": "If parity degrades, corrections are essential to parity conservation"
+  },
+  "ablation3_open_boundary_5x5x5.qasm": {
+    "ablation": 3,
+    "description": "Open boundaries (no periodic wrap), same lattice",
+    "n_qubits": 125,
+    "n_edges_periodic": 375,
+    "n_edges_open": 300,
+    "n_feedback_cycles": 350,
+    "hypothesis": "If H_norm/parity degrade, non-contractible loops matter"
+  },
+  "ablation5_depth_100cycles.qasm": {
+    "ablation": 5,
+    "description": "Depth scaling: 100 feedback cycles",
+    "n_qubits": 125,
+    "n_feedback_cycles": 100,
+    "hypothesis": "Track how invariants degrade vs. depth; compare torus vs random"
+  },
+  "ablation5_depth_200cycles.qasm": {
+    "ablation": 5,
+    "description": "Depth scaling: 200 feedback cycles",
+    "n_qubits": 125,
+    "n_feedback_cycles": 200,
+    "hypothesis": "Track how invariants degrade vs. depth; compare torus vs random"
+  },
+  "ablation5_depth_500cycles.qasm": {
+    "ablation": 5,
+    "description": "Depth scaling: 500 feedback cycles",
+    "n_qubits": 125,
+    "n_feedback_cycles": 500,
+    "hypothesis": "Track how invariants degrade vs. depth; compare torus vs random"
+  },
+  "ablation5_random_depth_100cycles.qasm": {
+    "ablation": 5,
+    "description": "Random control at 100 cycles (depth scaling comparison)",
+    "n_qubits": 125,
+    "n_feedback_cycles": 100,
+    "hypothesis": "If torus degrades slower than random with depth, topology helps"
+  },
+  "ablation5_random_depth_200cycles.qasm": {
+    "ablation": 5,
+    "description": "Random control at 200 cycles (depth scaling comparison)",
+    "n_qubits": 125,
+    "n_feedback_cycles": 200,
+    "hypothesis": "If torus degrades slower than random with depth, topology helps"
+  },
+  "ablation5_random_depth_500cycles.qasm": {
+    "ablation": 5,
+    "description": "Random control at 500 cycles (depth scaling comparison)",
+    "n_qubits": 125,
+    "n_feedback_cycles": 500,
+    "hypothesis": "If torus degrades slower than random with depth, topology helps"
+  },
+  "ablation7_stabilizer_verification.qasm": {
+    "ablation": 7,
+    "description": "Stabilizer verification (static graph state + measurement)",
+    "n_qubits": 125,
+    "checked_vertices": [
+      81,
+      14,
+      3,
+      94,
+      35,
+      31,
+      28,
+      17,
+      13,
+      86,
+      114,
+      69,
+      11,
+      75,
+      54,
+      4,
+      27,
+      29,
+      64,
+      77
+    ],
+    "hypothesis": "Check if any entanglement structure survives; parity of (v, neighbors) should be even for valid stabilizer"
+  }
+}

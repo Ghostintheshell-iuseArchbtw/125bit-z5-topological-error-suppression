@@ -1,0 +1,167 @@
+{
+  "submitted_at": "2026-02-10T14:23:33.151319",
+  "backends": [
+    "ibm_marrakesh"
+  ],
+  "shots": 50000,
+  "jobs": [
+    {
+      "job_id": "d65ob78qbmes739d5ibg",
+      "backend": "ibm_marrakesh",
+      "circuit_file": "ablation1_random_control_seed137.qasm",
+      "shots": 50000,
+      "submitted_at": "2026-02-10T14:23:09.816721",
+      "circuit_info": {
+        "n_qubits": 129,
+        "n_clbits": 127,
+        "depth": 1257,
+        "size": 5447,
+        "n_ops": {
+          "cz": 2489,
+          "rz": 954,
+          "reset": 702,
+          "sx": 477,
+          "measure": 475,
+          "if_else": 350
+        }
+      },
+      "transpiled_info": {
+        "n_qubits": 156,
+        "n_clbits": 127,
+        "depth": 14445,
+        "size": 143293,
+        "n_ops": {
+          "sx": 92265,
+          "cz": 48547,
+          "rz": 954,
+          "reset": 702,
+          "measure": 475,
+          "if_else": 350
+        }
+      },
+      "tags": [
+        "ablation1",
+        "ibm_marrakesh",
+        "ablation-ablation1_random_control_seed137"
+      ]
+    },
+    {
+      "job_id": "d65ob9be4kfs73cvm1i0",
+      "backend": "ibm_marrakesh",
+      "circuit_file": "ablation1_random_control_seed256.qasm",
+      "shots": 50000,
+      "submitted_at": "2026-02-10T14:23:18.009617",
+      "circuit_info": {
+        "n_qubits": 129,
+        "n_clbits": 127,
+        "depth": 1260,
+        "size": 5447,
+        "n_ops": {
+          "cz": 2489,
+          "rz": 954,
+          "reset": 702,
+          "sx": 477,
+          "measure": 475,
+          "if_else": 350
+        }
+      },
+      "transpiled_info": {
+        "n_qubits": 156,
+        "n_clbits": 127,
+        "depth": 14632,
+        "size": 142542,
+        "n_ops": {
+          "sx": 91760,
+          "cz": 48301,
+          "rz": 954,
+          "reset": 702,
+          "measure": 475,
+          "if_else": 350
+        }
+      },
+      "tags": [
+        "ablation1",
+        "ibm_marrakesh",
+        "ablation-ablation1_random_control_seed256"
+      ]
+    },
+    {
+      "job_id": "d65obbhv6o8c73d38a30",
+      "backend": "ibm_marrakesh",
+      "circuit_file": "ablation1_random_control_seed42.qasm",
+      "shots": 50000,
+      "submitted_at": "2026-02-10T14:23:26.407053",
+      "circuit_info": {
+        "n_qubits": 129,
+        "n_clbits": 127,
+        "depth": 1260,
+        "size": 5447,
+        "n_ops": {
+          "cz": 2489,
+          "rz": 954,
+          "reset": 702,
+          "sx": 477,
+          "measure": 475,
+          "if_else": 350
+        }
+      },
+      "transpiled_info": {
+        "n_qubits": 156,
+        "n_clbits": 127,
+        "depth": 14383,
+        "size": 141429,
+        "n_ops": {
+          "sx": 91022,
+          "cz": 47926,
+          "rz": 954,
+          "reset": 702,
+          "measure": 475,
+          "if_else": 350
+        }
+      },
+      "tags": [
+        "ablation1",
+        "ibm_marrakesh",
+        "ablation-ablation1_random_control_seed42"
+      ]
+    },
+    {
+      "job_id": "d65obctbujdc73ctnlp0",
+      "backend": "ibm_marrakesh",
+      "circuit_file": "ablation2_no_corrections.qasm",
+      "shots": 50000,
+      "submitted_at": "2026-02-10T14:23:32.149639",
+      "circuit_info": {
+        "n_qubits": 129,
+        "n_clbits": 127,
+        "depth": 1248,
+        "size": 4747,
+        "n_ops": {
+          "cz": 2139,
+          "rz": 954,
+          "reset": 702,
+          "sx": 477,
+          "measure": 475
+        }
+      },
+      "transpiled_info": {
+        "n_qubits": 156,
+        "n_clbits": 127,
+        "depth": 11710,
+        "size": 89081,
+        "n_ops": {
+          "sx": 56566,
+          "cz": 30384,
+          "rz": 954,
+          "reset": 702,
+          "measure": 475
+        }
+      },
+      "tags": [
+        "ablation2",
+        "ibm_marrakesh",
+        "ablation-ablation2_no_corrections"
+      ]
+    }
+  ]
+}

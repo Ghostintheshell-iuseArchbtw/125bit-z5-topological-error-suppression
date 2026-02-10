@@ -1,0 +1,33 @@
+{
+  "submitted_at": "2026-02-10T14:21:18.623341",
+  "backends": [
+    "ibm_torino"
+  ],
+  "shots": 50000,
+  "jobs": [
+    {
+      "circuit_file": "ablation1_random_control_seed137.qasm",
+      "backend": "ibm_torino",
+      "error": "\"The 'qiskit_qasm3_import' library is required to use 'loading from OpenQASM 3'. You can install it with 'pip install qiskit_qasm3_import'.\"",
+      "submitted_at": "2026-02-10T14:21:14.621444"
+    },
+    {
+      "circuit_file": "ablation1_random_control_seed256.qasm",
+      "backend": "ibm_torino",
+      "error": "\"The 'qiskit_qasm3_import' library is required to use 'loading from OpenQASM 3'. You can install it with 'pip install qiskit_qasm3_import'.\"",
+      "submitted_at": "2026-02-10T14:21:15.622025"
+    },
+    {
+      "circuit_file": "ablation1_random_control_seed42.qasm",
+      "backend": "ibm_torino",
+      "error": "\"The 'qiskit_qasm3_import' library is required to use 'loading from OpenQASM 3'. You can install it with 'pip install qiskit_qasm3_import'.\"",
+      "submitted_at": "2026-02-10T14:21:16.622810"
+    },
+    {
+      "circuit_file": "ablation2_no_corrections.qasm",
+      "backend": "ibm_torino",
+      "error": "\"The 'qiskit_qasm3_import' library is required to use 'loading from OpenQASM 3'. You can install it with 'pip install qiskit_qasm3_import'.\"",
+      "submitted_at": "2026-02-10T14:21:17.623224"
+    }
+  ]
+}

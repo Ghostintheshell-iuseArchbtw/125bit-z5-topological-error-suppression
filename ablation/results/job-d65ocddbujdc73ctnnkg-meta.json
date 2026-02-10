@@ -1,0 +1,36 @@
+{
+  "job_id": "d65ocddbujdc73ctnnkg",
+  "backend": "ibm_marrakesh",
+  "circuit_file": "ablation7_stabilizer_verification.qasm",
+  "shots": 50000,
+  "submitted_at": "2026-02-10T14:25:41.874827",
+  "circuit_info": {
+    "n_qubits": 125,
+    "n_clbits": 125,
+    "depth": 61,
+    "size": 935,
+    "n_ops": {
+      "cz": 375,
+      "rz": 290,
+      "sx": 145,
+      "measure": 125
+    }
+  },
+  "transpiled_info": {
+    "n_qubits": 156,
+    "n_clbits": 125,
+    "depth": 1652,
+    "size": 15333,
+    "n_ops": {
+      "sx": 9704,
+      "cz": 5214,
+      "rz": 290,
+      "measure": 125
+    }
+  },
+  "tags": [
+    "ablation7",
+    "ibm_marrakesh",
+    "ablation-ablation7_stabilizer_verification"
+  ]
+}

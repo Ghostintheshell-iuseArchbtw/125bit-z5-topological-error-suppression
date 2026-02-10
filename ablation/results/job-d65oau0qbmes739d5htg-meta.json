@@ -1,0 +1,40 @@
+{
+  "job_id": "d65oau0qbmes739d5htg",
+  "backend": "ibm_torino",
+  "circuit_file": "ablation1_random_control_seed256.qasm",
+  "shots": 50000,
+  "submitted_at": "2026-02-10T14:22:32.443681",
+  "circuit_info": {
+    "n_qubits": 129,
+    "n_clbits": 127,
+    "depth": 1260,
+    "size": 5447,
+    "n_ops": {
+      "cz": 2489,
+      "rz": 954,
+      "reset": 702,
+      "sx": 477,
+      "measure": 475,
+      "if_else": 350
+    }
+  },
+  "transpiled_info": {
+    "n_qubits": 133,
+    "n_clbits": 127,
+    "depth": 14714,
+    "size": 142264,
+    "n_ops": {
+      "sx": 91575,
+      "cz": 48208,
+      "rz": 954,
+      "reset": 702,
+      "measure": 475,
+      "if_else": 350
+    }
+  },
+  "tags": [
+    "ablation1",
+    "ibm_torino",
+    "ablation-ablation1_random_control_seed256"
+  ]
+}

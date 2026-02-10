@@ -1,0 +1,38 @@
+{
+  "job_id": "d65obctbujdc73ctnlp0",
+  "backend": "ibm_marrakesh",
+  "circuit_file": "ablation2_no_corrections.qasm",
+  "shots": 50000,
+  "submitted_at": "2026-02-10T14:23:32.149639",
+  "circuit_info": {
+    "n_qubits": 129,
+    "n_clbits": 127,
+    "depth": 1248,
+    "size": 4747,
+    "n_ops": {
+      "cz": 2139,
+      "rz": 954,
+      "reset": 702,
+      "sx": 477,
+      "measure": 475
+    }
+  },
+  "transpiled_info": {
+    "n_qubits": 156,
+    "n_clbits": 127,
+    "depth": 11710,
+    "size": 89081,
+    "n_ops": {
+      "sx": 56566,
+      "cz": 30384,
+      "rz": 954,
+      "reset": 702,
+      "measure": 475
+    }
+  },
+  "tags": [
+    "ablation2",
+    "ibm_marrakesh",
+    "ablation-ablation2_no_corrections"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "job_id": "d65occhv6o8c73d38bvg",
+  "backend": "ibm_marrakesh",
+  "circuit_file": "ablation5_random_depth_500cycles.qasm",
+  "shots": 50000,
+  "submitted_at": "2026-02-10T14:25:38.809288",
+  "circuit_info": {
+    "n_qubits": 129,
+    "n_clbits": 127,
+    "depth": 1785,
+    "size": 7397,
+    "n_ops": {
+      "cz": 3389,
+      "rz": 1254,
+      "reset": 1002,
+      "sx": 627,
+      "measure": 625,
+      "if_else": 500
+    }
+  },
+  "transpiled_info": {
+    "n_qubits": 156,
+    "n_clbits": 127,
+    "depth": 19761,
+    "size": 193773,
+    "n_ops": {
+      "sx": 124732,
+      "cz": 65660,
+      "rz": 1254,
+      "reset": 1002,
+      "measure": 625,
+      "if_else": 500
+    }
+  },
+  "tags": [
+    "ablation5",
+    "ibm_marrakesh",
+    "ablation-ablation5_random_depth_500cycles"
+  ]
+}
