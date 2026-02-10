@@ -1,0 +1,28 @@
+{
+  "id": "d5gnftcpe0pc73alf730",
+  "backend": "ibm_torino",
+  "state": {
+    "status": "Completed"
+  },
+  "params": {
+    "pubs": [
+      [
+        "OPENQASM 3.0;\ninclude \"stdgates.inc\";\nbit[20] c;\nsx $0;\nsx $1;\nsx $2;\nsx $3;\nrz(pi/2) $4;\nsx $4;\nrz(pi/2) $4;\nrz(pi/2) $5;\nsx $5;\nrz(pi/2) $5;\ncz $5, $4;\nrx(-pi/2) $4;\nrz(-pi/2) $4;\ncz $4, $3;\nsx $3;\nsx $4;\ncz $4, $3;\nsx $3;\nsx $4;\ncz $4, $3;\nsx $3;\ncz $3, $2;\nsx $2;\nsx $3;\ncz $3, $2;\nsx $2;\nsx $3;\ncz $3, $2;\nsx $2;\ncz $2, $1;\nsx $1;\nsx $2;\ncz $2, $1;\nsx $1;\nsx $2;\ncz $2, $1;\nsx $1;\ncz $1, $0;\nsx $0;\nsx $1;\ncz $1, $0;\nsx $0;\nsx $1;\ncz $1, $0;\nrz(pi/2) $6;\nsx $6;\nrz(pi/2) $6;\nrz(pi/2) $7;\nsx $7;\nrz(pi/2) $7;\ncz $6, $7;\nrx(-pi/2) $7;\nrz(-pi/2) $7;\nsx $8;\ncz $7, $8;\nsx $7;\nsx $8;\ncz $7, $8;\nsx $7;\nsx $8;\ncz $7, $8;\nsx $8;\nsx $9;\ncz $8, $9;\nsx $8;\nsx $9;\ncz $8, $9;\nsx $8;\nsx $9;\ncz $8, $9;\nsx $9;\nsx $10;\ncz $9, $10;\nsx $9;\nsx $10;\ncz $9, $10;\nsx $9;\nsx $10;\ncz $9, $10;\nsx $10;\nsx $11;\ncz $10, $11;\nsx $10;\nsx $11;\ncz $10, $11;\nsx $10;\nsx $11;\ncz $10, $11;\nsx $11;\nsx $12;\ncz $11, $12;\nsx $11;\nsx $12;\ncz $11, $12;\nsx $11;\nsx $12;\ncz $11, $12;\nsx $12;\nrz(pi/2) $16;\nsx $16;\nrz(pi/2) $16;\nsx $18;\ncz $12, $18;\nsx $12;\nsx $18;\ncz $12, $18;\nsx $12;\nsx $18;\ncz $12, $18;\nsx $18;\nrz(pi/2) $19;\nsx $19;\nrz(pi/2) $19;\nrz(pi/2) $20;\nsx $20;\nrz(pi/2) $20;\ncz $20, $19;\nrz(pi/2) $19;\nsx $19;\nrz(pi/2) $19;\nrz(pi/2) $20;\nsx $20;\nrz(pi/2) $20;\nrz(pi/2) $21;\nsx $21;\nrz(pi/2) $21;\nrz(pi/2) $22;\nsx $22;\nrz(pi/2) $22;\ncz $22, $21;\nrz(pi/2) $21;\nsx $21;\nrz(pi/2) $21;\ncz $21, $20;\nrz(pi/2) $20;\nsx $20;\nrz(pi/2) $20;\nrz(pi/2) $21;\nsx $21;\nrz(pi/2) $21;\nrz(pi/2) $22;\nsx $22;\nrz(pi/2) $22;\nrz(pi/2) $23;\nsx $23;\nrz(pi/2) $23;\ncz $16, $23;\nrz(pi/2) $23;\nsx $23;\nrz(pi/2) $23;\ncz $23, $22;\nrz(pi/2) $22;\nsx $22;\nrz(pi/2) $22;\nrz(pi/2) $23;\nsx $23;\nrz(pi/2) $23;\nrz(pi/2) $24;\nsx $24;\nrz(pi/2) $24;\nrz(pi/2) $25;\nsx $25;\nrz(pi/2) $25;\ncz $24, $25;\nrz(pi/2) $25;\nsx $25;\nrz(pi/2) $25;\nrz(pi/2) $26;\nsx $26;\nrz(pi/2) $26;\nrz(pi/2) $27;\nsx $27;\nrz(pi/2) $27;\ncz $26, $27;\nrz(pi/2) $26;\nsx $26;\nrz(pi/2) $26;\ncz $25, $26;\nrz(pi/2) $25;\nsx $25;\nrz(pi/2) $25;\nrz(pi/2) $26;\nsx $26;\nrz(pi/2) $26;\nrz(pi/2) $27;\nsx $27;\nrz(pi/2) $27;\nrz(pi/2) $28;\nsx $28;\nrz(pi/2) $28;\nrz(pi/2) $29;\nsx $29;\nrz(pi/2) $29;\ncz $28, $29;\nrz(pi/2) $28;\nsx $28;\nrz(pi/2) $28;\ncz $27, $28;\nrz(pi/2) $27;\nsx $27;\nrz(pi/2) $27;\nrz(pi/2) $28;\nsx $28;\nrz(pi/2) $28;\nrz(pi/2) $29;\nsx $29;\nrz(pi/2) $29;\nsx $30;\nsx $31;\ncz $18, $31;\nsx $18;\nsx $31;\ncz $18, $31;\nsx $18;\nsx $31;\ncz $18, $31;\nsx $31;\ncz $31, $30;\nsx $30;\nsx $31;\ncz $31, $30;\nsx $30;\nsx $31;\ncz $31, $30;\nrz(pi/2) $36;\nsx $36;\nrz(pi/2) $36;\nrz(pi/2) $46;\nsx $46;\nrz(pi/2) $46;\nrz(pi/2) $47;\nsx $47;\nrz(pi/2) $47;\ncz $47, $46;\nrz(pi/2) $46;\nsx $46;\nrz(pi/2) $46;\nrz(pi/2) $47;\nsx $47;\nrz(pi/2) $47;\nrz(pi/2) $48;\nsx $48;\nrz(pi/2) $48;\ncz $36, $48;\nrz(pi/2) $36;\nsx $36;\nrz(pi/2) $36;\ncz $29, $36;\nrz(pi/2) $29;\nsx $29;\nrz(pi/2) $29;\nrz(pi/2) $36;\nsx $36;\nrz(pi/2) $36;\nrz(pi/2) $48;\nsx $48;\nrz(pi/2) $48;\ncz $48, $47;\nrz(pi/2) $47;\nsx $47;\nrz(pi/2) $47;\nrz(pi/2) $48;\nsx $48;\nrz(pi/2) $48;\nbarrier $5, $4, $3, $2, $1, $0, $16, $23, $22, $21, $20, $19, $6, $7, $8, $9, $10, $11, $12, $18, $31, $30, $24, $25, $26, $27, $28, $29, $36, $48, $47, $46;\nrz(pi/2) $0;\nsx $0;\nrz(pi/2) $0;\nrz(pi/2) $5;\nsx $5;\nrz(pi/2) $5;\nrz(pi/2) $6;\nsx $6;\nrz(pi/2) $6;\nrz(pi/2) $16;\nsx $16;\nrz(pi/2) $16;\nrz(pi/2) $19;\nsx $19;\nrz(pi/2) $19;\nrz(pi/2) $24;\nsx $24;\nrz(pi/2) $24;\nrz(pi/2) $30;\nsx $30;\nrz(pi/2) $30;\nrz(pi/2) $46;\nsx $46;\nrz(pi/2) $46;\nbarrier $5, $4, $3, $2, $1, $0, $16, $23, $22, $21, $20, $19, $6, $7, $8, $9, $10, $11, $12, $18, $31, $30, $24, $25, $26, $27, $28, $29, $36, $48, $47, $46;\nc[0] = measure $5;\nc[1] = measure $0;\nc[2] = measure $16;\nc[3] = measure $19;\nc[4] = measure $23;\nc[5] = measure $22;\nc[6] = measure $21;\nc[7] = measure $20;\nc[8] = measure $6;\nc[9] = measure $30;\nc[10] = measure $24;\nc[11] = measure $46;\nc[12] = measure $25;\nc[13] = measure $26;\nc[14] = measure $27;\nc[15] = measure $28;\nc[16] = measure $29;\nc[17] = measure $36;\nc[18] = measure $48;\nc[19] = measure $47;\n",
+        [],
+        20000
+      ]
+    ],
+    "support_qiskit": false,
+    "version": 2
+  },
+  "program": {
+    "id": "sampler"
+  },
+  "user_id": "IBMid-698000IDBW",
+  "created": "2026-01-09T21:49:41.201916Z",
+  "tags": [
+    "Composer"
+  ],
+  "cost": 600,
+  "status": "Completed"
+}
