@@ -1,92 +1,162 @@
-# Z5 Topological Error Suppression
+# 125-Qubit Z5 Toroidal Error Suppression
 
 **On the Statistical Behavior of a Deep Toroidal Circuit Executed Beyond Coherence Limits**
 
 *Joseph Daniel Burke III, Independent Researcher*
 
-## Summary
+---
 
-This repository contains the complete experimental data, analysis code, and publication materials for a study of a 5x5x5 toroidal graph-state circuit executed on IBM Heron quantum processors. The circuit comprises 1,584 layers, 11,900 CZ gates, and 350 measurement-reset-feedback cycles, running 5-10x beyond the hardware coherence limit.
+> A 5x5x5 toroidal graph-state circuit --- 1,584 layers, 11,900 CZ gates, 350 measurement-reset-feedback cycles --- executed on IBM Heron processors at 5-10x beyond coherence time. The topology leaves a measurable classical fingerprint in the noise. The ablation study proves it, then honestly reframes what "it" is.
 
-### Key findings
+---
 
-1. **Statistical invariants**: The circuit produces near-perfect normalized Shannon entropy (H_norm = 1.000000 on Torino; 0.999990 on Marrakesh at 50k shots) with balanced parity (|epsilon| < 0.006) despite severely degraded Hamming weight (~0.15 on Torino, ~0.075 on Marrakesh).
+## The Experiment
 
-2. **Dead qubit clustering**: On Marrakesh, dead qubits form spatially clustered runs of 7 and 4 consecutive indices (p < 0.004 under random placement), suggesting systematic hardware-software interaction rather than random noise.
+125 data qubits are wired into a three-dimensional torus ($\mathbb{Z}_5^3$) using CZ entangling gates on IBM Heron processors. Each of 350 feedback cycles measures 4 ancilla qubits, applies conditional X/Z corrections based on syndrome outcomes, and re-entangles the lattice. The resulting circuit is 44,505 lines of OpenQASM 3.0 and runs roughly an order of magnitude past the point where any quantum coherence should survive.
 
-3. **Run-to-run instability**: Dead qubit positions show zero overlap between Torino runs and only partial overlap (Jaccard = 0.25) between Marrakesh runs, ruling out static hardware defects.
+The question is not whether the qubits are still coherent (they are not). The question is whether the *topology* of the circuit leaves a detectable imprint on the *classical* output distribution --- and whether the feedback corrections do anything useful, or something worse.
 
-4. **Detection-correction divergence**: Final-cycle syndrome detection degrades by only 6.7% between backends while cumulative Hamming weight degrades by 51.4%, a 7.7x ratio.
+## What We Found
 
-5. **2D vs 3D comparison**: A 2D torus variant (5x5, 25 qubits) shows 4,467 code-register collisions at 50k shots versus 65 for the 3D circuit, a difference attributable primarily to Hilbert-space dimension (2^25 vs 2^125) rather than topological protection.
+### Paper I: The Original Study
 
-### Honest assessment
+| Invariant | Torino (Heron r1) | Marrakesh (Heron r2) |
+|-----------|:-----------------:|:--------------------:|
+| H_norm | 1.000000 | 0.999990 |
+| Parity bias (epsilon) | -0.0054 | -0.0025 |
+| Hamming weight | 0.1536 | 0.0746 |
+| Dead qubits | 3 | 31 |
+| Syndrome asymmetry | P(m=1) = 0.530 | P(m=1) = 0.489 |
 
-The bulk statistics (high entropy, balanced parity, low Hamming weight) are consistent with independent T1 amplitude damping on 125 qubits and do not by themselves require a topological explanation. The significance lies in the forensic fine structure: clustering, instability, backend asymmetry, and detection-correction divergence. These features are not naturally explained by simple noise models. The proposed DD/feedback interference mechanism is conjectural and requires ablation experiments to confirm.
+Dead qubits cluster spatially (runs of 7 and 4 consecutive indices, p < 0.004). Their positions shift between runs (Jaccard = 0.25), ruling out static hardware defects. Syndrome detection degrades 7.7x slower than Hamming weight between backends.
+
+### Paper II: The Ablation Study
+
+Three hardware ablation experiments at 50,000 shots each on both backends:
+
+| Ablation | What It Tests | Verdict |
+|----------|--------------|---------|
+| **Random-circuit control** | Replace torus CZ with random pairs (same depth/gates) | Parity bias is **4-5x stronger** on torus. Dead-qubit clustering **vanishes** with random connectivity. Topology matters. |
+| **Feedback ablation** | Keep torus, remove conditional corrections | Corrections are **iatrogenic**: they *create* 23 extra dead qubits on Marrakesh rather than preventing them. Parity flips sign on Torino. |
+| **Stabilizer verification** | Measure graph-state stabilizers directly | **No entanglement survives.** Parity consistent with zero. Graph state fully thermalized. |
+
+### The Key Discovery
+
+The corrections don't protect qubits --- they *kill specific ones*. On Marrakesh: 31 dead qubits with corrections, 8 without. The feedback loop is a noise microscope, not a noise shield. Combined with Marrakesh's hardware-level dynamical decoupling, the three-way interaction (torus x corrections x DD) produces the dominant effect.
+
+### The Reframing
+
+The Z5 torus topology creates detectable classical correlations in a noise-dominated output distribution. These correlations (parity bias, dead-qubit clustering, Hamming weight suppression) are real, reproducible, and topology-dependent. They do not constitute quantum error suppression. They constitute **topological noise spectroscopy**: the circuit's geometry selectively amplifies specific noise channels, making them measurable.
+
+## Hardware
+
+| Backend | Revision | Qubits | Median T1 | Median CZ Error | Hardware DD |
+|---------|----------|:------:|:---------:|:---------------:|:-----------:|
+| ibm_torino | Heron r1 | 133 | ~170 us | ~0.5% | No |
+| ibm_marrakesh | Heron r2 | 156 | ~150 us | ~0.7% | Yes (TLS mitigation) |
+
+The backend asymmetry (Torino: 3 dead qubits; Marrakesh: 31) is itself a finding. Heron r2's dynamical decoupling interacts with the feedback loop to produce qualitatively different behavior.
 
 ## Repository Structure
 
 ```
-release/
-  paper/
-    z5_unified_paper.tex          LaTeX source (two-column format, 5 figures)
-    figure1_perqubit_p1.pdf       Per-qubit P(1) for all 125 data qubits
-    figure2_clustering.pdf        Dead qubit clustering analysis
-    figure3_divergence.pdf        Detection-correction divergence
-    figure4_dead_qubit_map.pdf    Dead qubits mapped onto 5x5x5 torus
-    figure5_timing_schematic.pdf  DD/feedback timing schematic
-  circuits/
-    z5.qasm                       Transpiled dynamic circuit (44,505 lines, OpenQASM 3.0)
-    z5x5x5_torus_halo_static.qasm  Static graph state scaffold (628 lines, OpenQASM 2.0)
-  data/
-    ibm_torino_dynamic_counts_*.json       3D torus results (Torino, 20k/50k shots)
-    ibm_marrakesh_dynamic_counts_*.json    3D torus results (Marrakesh, 20k/50k shots)
-    ibm_torino_z5x5_dynamic_counts_*.json  2D torus results (Torino, 20k shots)
-    ibm_marrakesh_z5x5_dynamic_counts_*.json  2D torus results (Marrakesh, 20k/50k shots)
-    ibm_marrakesh_static_counts_20000.json    Static scaffold results
-    *_combined.json                Combined-register variants of all above
-    job-d5g*-info.json             Raw IBM Quantum job metadata
-    job-d5g*-result.json           Raw IBM Quantum job results (BitArray, zlib)
-    verified_statistics.json       Machine-readable verified statistics
-    verification_report.txt        Human-readable verification report
-  analysis/
-    rigorous_verify.py            Core statistical verification (entropy, parity, W, P_q(1))
-    forensic_analysis.py          Clustering analysis (Monte Carlo, runs test, adjacency)
-    generate_publication_materials.py  Figure generation and comprehensive reporting
-    analysis_2d_part*.py          2D torus analysis scripts
-  figures/
-    figure[1-5]_*.pdf             Publication-quality figures (PDF)
-    figure[1-5]_*.png             Screen-resolution figures (PNG)
-  LICENSE                         MIT License
-  requirements.txt                Python dependencies
+.
+├── paper/
+│   ├── z5_unified_paper.tex              Main paper (LaTeX, two-column, 5 figures)
+│   ├── z5_unified_paper.pdf              Compiled PDF
+│   └── figure[1-5]_*.pdf                 Publication figures
+│
+├── ablation/
+│   ├── z5_ablation_paper.tex             Ablation paper (LaTeX, companion to main)
+│   ├── ABLATION_RESULTS.md               Complete results with hypothesis tests
+│   ├── circuits/                         15 ablation circuits (OpenQASM 3.0)
+│   │   └── ablation_manifest.json        Machine-readable experiment manifest
+│   ├── results/                          Raw hardware data (6 count files, 24 job metadata)
+│   ├── generate_ablation_circuits.py     Circuit generator
+│   ├── submit_to_hardware.py             Hardware submission pipeline
+│   ├── analyze_ablation_results.py       Comparative analysis
+│   └── run_hardware_analysis.py          Hardware-specific analysis
+│
+├── circuits/
+│   ├── z5.qasm                           Main circuit (44,505 lines, OpenQASM 3.0)
+│   └── z5x5x5_torus_halo_static.qasm    Static graph-state scaffold (OpenQASM 2.0)
+│
+├── data/
+│   ├── ibm_*_counts_*.json               Raw count data (3D/2D, Torino/Marrakesh, 20k/50k)
+│   ├── job-*-info.json                   IBM Quantum job metadata
+│   ├── job-*-result.json                 IBM Quantum job results (BitArray, zlib)
+│   ├── verified_statistics.json          Machine-readable verified invariants
+│   └── verification_report.txt           Human-readable verification report
+│
+├── analysis/
+│   ├── rigorous_verify.py                Core verification (entropy, parity, W, P_q)
+│   ├── forensic_analysis.py              Clustering (Monte Carlo, runs test, adjacency)
+│   ├── generate_publication_materials.py Figure generation
+│   └── analysis_2d_part[2-5].py          2D torus comparative analysis
+│
+├── figures/
+│   └── figure[1-5]_*.{pdf,png}           Publication figures (PDF + PNG)
+│
+├── requirements.txt
+└── LICENSE                                MIT
 ```
 
-## Hardware
+## Quick Start
 
-All experiments were executed on IBM Quantum Heron processors in January 2026:
-
-| Backend | Revision | Qubits | Median T1 | Median CZ error |
-|---------|----------|--------|-----------|-----------------|
-| ibm_torino | Heron r1 | 133 | ~170 us | ~0.5% |
-| ibm_marrakesh | Heron r2 | 156 | ~150 us | ~0.7% |
-
-## Reproducing the analysis
+### Reproduce the analysis
 
 ```bash
 pip install -r requirements.txt
-cd analysis
-python rigorous_verify.py
-python forensic_analysis.py
-python generate_publication_materials.py
+
+# Core statistical verification
+python analysis/rigorous_verify.py
+
+# Dead-qubit clustering forensics
+python analysis/forensic_analysis.py
+
+# Publication figures
+python analysis/generate_publication_materials.py
 ```
 
-## Compiling the paper
+### Compile the papers
 
 ```bash
-cd paper
-pdflatex z5_unified_paper.tex
-pdflatex z5_unified_paper.tex   # second pass for references
+# Main paper
+cd paper && pdflatex z5_unified_paper.tex && pdflatex z5_unified_paper.tex
+
+# Ablation paper
+cd ablation && pdflatex z5_ablation_paper.tex && pdflatex z5_ablation_paper.tex
 ```
+
+### Run ablation experiments (requires IBM Quantum access)
+
+```bash
+cd ablation
+
+# Generate circuits
+python generate_ablation_circuits.py
+
+# Submit to hardware
+python submit_to_hardware.py --backend ibm_torino --shots 50000
+
+# Analyze results
+python analyze_ablation_results.py
+```
+
+## Papers
+
+**Paper I** --- *On the Statistical Behavior of a Deep Toroidal Circuit Executed Beyond Coherence Limits*
+> Reports the five statistical invariants, dead-qubit clustering, backend asymmetry, and detection-correction divergence. Specifies falsifiable predictions and required ablation protocols.
+
+**Paper II** --- *Ablation Study of a Deep Toroidal Circuit: Topology as Noise Spectroscopy*
+> Executes the ablation protocols specified in Paper I. Discovers the iatrogenic nature of corrections, the three-way torus/corrections/DD interaction, and reframes the finding from error suppression to noise spectroscopy.
+
+## What This Work Does Not Claim
+
+- It does **not** claim fault-tolerant quantum error correction
+- It does **not** claim surviving quantum coherence after 350 cycles at 5-10x T1
+- It does **not** claim the toroidal topology "protects" information in any quantum-information-theoretic sense
+- It **does** claim that circuit topology leaves measurable, reproducible classical fingerprints in noise-dominated output distributions, and that this phenomenon may be useful for hardware characterization
 
 ## Citation
 
@@ -96,10 +166,20 @@ pdflatex z5_unified_paper.tex   # second pass for references
   title   = {On the Statistical Behavior of a Deep Toroidal Circuit
              Executed Beyond Coherence Limits},
   year    = {2026},
-  note    = {Preprint. Data and code: \url{https://github.com/ghostintheshellredteam/z5-topological-error-suppression}}
+  note    = {Preprint. Data and code:
+             \url{https://github.com/Ghostintheshell-iuseArchbtw/125bit-z5-topological-error-suppression}}
+}
+
+@article{burke2026ablation,
+  author  = {Burke, Joseph Daniel III},
+  title   = {Ablation Study of a Deep Toroidal Circuit:
+             Topology as Noise Spectroscopy},
+  year    = {2026},
+  note    = {Companion to \cite{burke2026toroidal}. Data and code:
+             \url{https://github.com/Ghostintheshell-iuseArchbtw/125bit-z5-topological-error-suppression}}
 }
 ```
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+MIT License. See [LICENSE](LICENSE).

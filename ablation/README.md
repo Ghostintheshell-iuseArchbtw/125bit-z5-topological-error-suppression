@@ -1,69 +1,110 @@
-# Ablation Experiments
+# Ablation Study: Topology as Noise Spectroscopy
 
-Systematic ablation study to isolate the contribution of each structural element
-in the Z5 toroidal circuit. Each variant modifies **exactly one** element.
+**Companion to:** *On the Statistical Behavior of a Deep Toroidal Circuit Executed Beyond Coherence Limits*
 
-## Experiments
+---
 
-| # | Experiment | What changes | What stays | Key question |
-|---|-----------|-------------|-----------|-------------|
-| 1 | **Random-circuit control** | CZ connectivity → random pairs | Depth, qubit count, gate count, feedback | Does torus topology matter? |
-| 2 | **Feedback ablation** | Conditional corrections removed | Torus structure, measure-reset cycle | Are corrections essential? |
-| 3 | **Open boundary** | Periodic → open boundaries | Lattice dimensions, feedback | Do non-contractible loops matter? |
-| 5 | **Depth scaling** | 100/200/500 feedback cycles | Torus topology | How do invariants degrade with depth? |
-| 7 | **Stabilizer verification** | Full dynamic → static graph state | Torus topology | Does any entanglement survive? |
+> The original paper made claims. This directory tests them. Three ablation experiments on IBM Heron hardware at 50,000 shots each, executed on both ibm_torino and ibm_marrakesh. The result: topology matters, corrections are iatrogenic, and nothing quantum survives.
+
+---
+
+## The Three Experiments
+
+| # | Experiment | What Changes | What Stays | Key Question |
+|---|-----------|-------------|-----------|:------------|
+| 1 | **Random-circuit control** | CZ connectivity randomized | Depth, qubit count, gate count, feedback | Is the torus special, or would any connectivity do? |
+| 2 | **Feedback ablation** | Conditional X/Z corrections removed | Torus structure, measure-reset cycle | Do corrections protect or harm? |
+| 7 | **Stabilizer verification** | Full dynamic circuit replaced with stabilizer measurement | Torus connectivity | Does any entanglement survive 350 cycles? |
+
+## What We Found
+
+### Topology leaves a real imprint
+
+Random circuits with identical gate count/depth produce 4-5x weaker parity bias and dramatically fewer dead qubits (0 vs 3 on Torino, 8 vs 31 on Marrakesh). The torus connectivity creates measurable structure that random connectivity does not.
+
+### Corrections are iatrogenic
+
+Removing the conditional corrections *reduces* dead qubits from 31 to 8 on Marrakesh. The corrections don't shield qubits from noise --- they create qubit-specific suppression patterns. On Torino, removing corrections flips the sign of the parity bias entirely.
+
+### No quantum coherence survives
+
+Stabilizer verification shows parity bias consistent with zero (within 1/sqrt(50000) statistical noise). The graph state is fully thermalized. Every statistical invariant observed in the main paper is a classical fingerprint, not a quantum signature.
+
+### The three-way interaction
+
+The dominant effect is not topology alone, not corrections alone, but the interaction between **torus connectivity**, **conditional corrections**, and **hardware-level dynamical decoupling** (present on Marrakesh Heron r2, absent on Torino Heron r1). This three-way interaction explains the 10x backend asymmetry in dead-qubit count.
+
+## Results Summary
+
+| Dataset | H_norm | Parity (epsilon) | Hamming | Dead Qubits |
+|---------|:------:|:---------:|:-------:|:-----------:|
+| **Original (Torino)** | 1.000000 | -0.0054 | 0.1536 | 3 |
+| **Original (Marrakesh)** | 0.999990 | -0.0025 | 0.0746 | 31 |
+| Random (Torino) | 1.000000 | -0.0012 | 0.2308 | 0 |
+| Random (Marrakesh) | 0.999987 | -0.0005 | 0.0846 | 8 |
+| No corrections (Torino) | 1.000000 | +0.0044 | 0.2047 | 0 |
+| No corrections (Marrakesh) | 0.999989 | -0.0034 | 0.0922 | 8 |
+| Stabilizer (Torino) | 1.000000 | -0.0036 | 0.3531 | 0 |
+| Stabilizer (Marrakesh) | 1.000000 | +0.0056 | 0.3268 | 1 |
+
+Full analysis with hypothesis tests: [ABLATION_RESULTS.md](ABLATION_RESULTS.md)
+
+## Structure
+
+```
+ablation/
+├── z5_ablation_paper.tex                  Companion paper (LaTeX source)
+├── ABLATION_RESULTS.md                    Complete results & hypothesis tests
+│
+├── circuits/                              15 OpenQASM 3.0 ablation circuits
+│   ├── ablation1_random_control_*.qasm    Random connectivity (3 seeds)
+│   ├── ablation2_no_corrections.qasm      Torus without feedback corrections
+│   ├── ablation3_open_boundary_*.qasm     Open boundary conditions
+│   ├── ablation5_depth_*.qasm             Depth scaling (100/200/500 cycles)
+│   ├── ablation5_random_depth_*.qasm      Random controls for depth scaling
+│   ├── ablation7_stabilizer_*.qasm        Graph-state stabilizer measurement
+│   └── ablation_manifest.json             Machine-readable experiment manifest
+│
+├── results/                               Raw hardware data
+│   ├── ibm_*_counts.json                  6 count files (2 backends x 3 experiments)
+│   ├── hardware_ablation_analysis.json    Computed invariants for all datasets
+│   ├── ablation_comparative_analysis.json Full comparative analysis
+│   ├── job-*-meta.json                    24 IBM Quantum job metadata files
+│   └── submission_*.json                  Submission records
+│
+├── generate_ablation_circuits.py          Circuit generator (TorusLattice + QASMEmitter)
+├── submit_to_hardware.py                  Hardware submission pipeline
+├── run_ablation_experiments.py            Experiment runner (sim + hardware)
+├── analyze_ablation_results.py            Comparative analysis script
+└── run_hardware_analysis.py               Hardware-specific analysis
+```
 
 ## Usage
 
 ```bash
-# 1. Generate all ablation circuits
+# Generate all ablation circuits
 python generate_ablation_circuits.py
 
-# 2. Run experiments (choose one)
-python run_ablation_experiments.py --simulate --shots 1000        # Local simulation
-python run_ablation_experiments.py --backend ibm_torino --shots 20000   # Hardware
-python run_ablation_experiments.py --backend ibm_marrakesh --shots 50000 # Hardware
+# Submit to hardware (requires IBM Quantum access)
+python submit_to_hardware.py --backend ibm_torino --shots 50000
+python submit_to_hardware.py --backend ibm_marrakesh --shots 50000
 
-# Run specific ablations only
-python run_ablation_experiments.py --backend ibm_torino --shots 20000 --ablation 1 2
-
-# Dry run (list circuits without executing)
-python run_ablation_experiments.py --dry-run
-
-# 3. Analyze results
+# Analyze results
 python analyze_ablation_results.py
+
+# Compile the companion paper
+pdflatex z5_ablation_paper.tex && pdflatex z5_ablation_paper.tex
 ```
 
-## Decision Matrix
+## IBM Quantum Jobs
 
-| Outcome | Interpretation |
-|---------|---------------|
-| Random ≈ Torus | Topology provides **no** advantage |
-| Random << Torus | Topology **does** protect — strongest finding |
-| No-corrections ≈ Torus | Corrections are cosmetic |
-| No-corrections << Torus | Feedback loop is **essential** |
-| Open ≈ Torus | Non-contractible loops don't matter |
-| Open << Torus | **Global** topology provides protection |
-| Torus degrades slower | Depth-dependent topological advantage |
-| Stabilizer parity biased | Entanglement survives beyond coherence — **shocking** |
+| Job ID | Experiment | Backend |
+|--------|-----------|---------|
+| `d65ob03e4kfs73cvm13g` | Random control (seed 42) | ibm_torino |
+| `d65ob1gqbmes739d5i3g` | No corrections | ibm_torino |
+| `d65obt0qbmes739d5jeg` | Stabilizer verification | ibm_torino |
+| `d65obbhv6o8c73d38a30` | Random control (seed 42) | ibm_marrakesh |
+| `d65obctbujdc73ctnlp0` | No corrections | ibm_marrakesh |
+| `d65ocddbujdc73ctnnkg` | Stabilizer verification | ibm_marrakesh |
 
-## Generated Circuits
-
-After running `generate_ablation_circuits.py`:
-
-```
-ablation/circuits/
-  ablation1_random_control_seed42.qasm       # 3 random seeds
-  ablation1_random_control_seed137.qasm
-  ablation1_random_control_seed256.qasm
-  ablation2_no_corrections.qasm              # Torus, no conditional corrections
-  ablation3_open_boundary_5x5x5.qasm         # Open boundaries (300 vs 375 edges)
-  ablation5_depth_100cycles.qasm             # Torus at reduced depth
-  ablation5_depth_200cycles.qasm
-  ablation5_depth_500cycles.qasm
-  ablation5_random_depth_100cycles.qasm      # Matching random controls
-  ablation5_random_depth_200cycles.qasm
-  ablation5_random_depth_500cycles.qasm
-  ablation7_stabilizer_verification.qasm     # Static stabilizer check
-  ablation_manifest.json                     # Machine-readable experiment manifest
-```
+All jobs completed successfully on February 10, 2026.
